@@ -1,0 +1,56 @@
+#!/bin/bash
+# File: make-go-dir
+# Usage: make-go-dir <root directory name> <identifier name>
+# Sets up a directory structure for a Go API project.
+
+# a. Validate that exactly two arguments were given
+if [ "$#" -ne 2 ]; then
+    echo "You need to provide two arguments for this script to work."
+    echo "Usage: make-go-dir <root directory name> <identifier name>"
+    exit 1
+fi
+
+ROOT="$1"
+IDENTIFIER="$2"
+
+# b. Ask the user to confirm
+echo "I am about to create a directory structure named '$ROOT'."
+read -p "Do you want me to continue? [Yes/no] " ANSWER
+
+# c / d. Act on the answer
+if [ "$ANSWER" = "Yes" ]; then
+    echo "Create directory structure..."
+else
+    echo "Abort."
+    exit 0
+fi
+
+# e. Create directories and files
+mkdir -p "$ROOT/bin" \
+         "$ROOT/cmd/api" \
+         "$ROOT/internals" \
+         "$ROOT/migrations" \
+         "$ROOT/remote"
+
+touch "$ROOT/make-file"
+
+# f. Write the hello world program to main.go
+cat > "$ROOT/cmd/api/main.go" << 'EOF'
+// File: cmd/api/main.go
+
+package main
+
+import "fmt"
+
+func main() {
+fmt.Println("Hello world!")
+}
+EOF
+
+# g. Write the module identifier to go.mod (e.g. karpbox.umana-amilcar.net)
+echo "module $ROOT.$IDENTIFIER" > "$ROOT/go.mod"
+
+# h. Final message
+echo "I have created a *main.go* file for you to test the directory structure."
+echo "Type *go run ./cmd/api* at the root directory of your project to test your project."
+echo "Thank you."
